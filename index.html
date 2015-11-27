@@ -162,24 +162,26 @@ this allows for chaining
 <div>
 <em>OK</em> not going to be a problem
 <pre>stream.on('data', data => {
-  var result = <pre>doSomethingSync</pre>(data);
-  <pre>doSomethingElse</pre>(result);
+  var result = <em>doSomethingSync</em>(data);
+  <em>doSomethingElse</em>(result);
 });</pre>
 </div>
 <div>
 <em>BAD!</em> Will cause an error with enough data
 <pre>stream.on('data', data =>
-  <pre>doSomethingAsync</pre>(data, (err, result) => {
+  <em>doSomethingAsync</em>(data, (err, result) => {
     if (err) {
       throw err;
     }
-    <pre>doSomethingElseSync</pre>(result);
+    <em>doSomethingElseSync</em>(result);
   })
 );</pre>
 </div>
 <div>
 <em>Best</em> the prefered way
-<pre>stream.pipe(<em>doSomethingAsyncStream</em>).pipe(<em>doSomethingElseStream</em>);</pre>
+<pre>stream
+  .pipe(<em>doSomethingAsyncStream</em>)
+  .pipe(<em>doSomethingElseStream</em>);</pre>
 </div>
 <div>
 To create a stream you just suply needed functions
@@ -201,17 +203,13 @@ ES5 way
 <pre>
 utils.inherits(<em>FromArray</em>, <em>Transform</em>);
 function <em>FromArray</em>() {
-  <em>Transform</em>.call(this, {<em>objectMode</em>: true});
+  <em>Transform</em>.call(<em>this</em>, {
+    <em>objectMode</em>: true
+  });
 }
-<em>FromArray</em>.prototype._transform = function (chunk, encoding, <em>next</em>) {
-  if (!Array.isArray(chunk)) {
-    return <em>next</em>(new TypeError('must be an array'));
-  }
-  if (chunk.length === 1) {
-    return <em>next</em>(null, chunk[0]);
-  }
-  for (let item of chunk) {
-    this.push(item);
+<em>FromArray</em>.prototype._transform = function (<em>chunk</em>, encoding, <em>next</em>) {
+  for (let <em>item</em> of <em>chunk</em>) {
+    <em>this</em>.push(<em>item</em>);
   }
   <em>next</em>();
 }
@@ -227,15 +225,9 @@ class <em>FromArray</em> extends <em>Transform</em> {
       <em>objectMode</em>: true
     });
   }
-  _transform(chunk, encoding, <em>next</em>) {
-    if (!Array.isArray(chunk)) {
-      return <em>next</em>(new TypeError('must be an array'));
-    }
-    if (chunk.length === 1) {
-      return <em>next</em>(null, chunk[0]);
-    }
-    for (let item of chunk) {
-      this.push(item);
+  _transform(<em>chunk</em>, encoding, <em>next</em>) {
+    for (let <em>item</em> of <em>chunk</em>) {
+      <em>this</em>.push(<em>item</em>);
     }
     <em>next</em>();
   }
@@ -247,20 +239,32 @@ or you can just pass it to the constructor
 <pre>
 var <em>fromArray</em> = new <em>Transform</em>({
   <em>objectMode</em>: true,
-  transform: function(chunk, encoding, <em>next</em>) {
-    if (!Array.isArray(chunk)) {
-      return <em>next</em>(new TypeError('must be an array'));
-    }
-    if (chunk.length === 1) {
-      return <em>next</em>(null, chunk[0]);
-    }
-    for (let item of chunk) {
-      this.push(item);
+  transform(<em>chunk</em>, encoding, <em>next</em>) {
+    for (let <em>item</em> of <em>chunk</em>) {
+      <em>this</em>.push(<em>item</em>);
     }
     <em>next</em>();
   }
 });
 </pre>
+</div>
+<div>
+more complete transform function
+<pre>function(<em>chunk</em>, encoding, <em>next</em>) {
+    if (!Array.isArray(<em>chunk</em>)) {
+      return <em>next</em>(new TypeError('must be an array'));
+    }
+    if (<em>chunk</em>.length === 1) {
+      return <em>next</em>(null, <em>chunk</em>[0]);
+    }
+    for (let <em>item</em> of <em>chunk</em>) {
+      <em>this</em>.push(<em>item</em>);
+    }
+    <em>next</em>();
+  }<pre>
+<notes>See how next is regular callback that can be used when we emit a single thing</notes>
+<notes>if you forget to call next things will catch fire</notes>
+
 </div>
 </body>
 </html>
