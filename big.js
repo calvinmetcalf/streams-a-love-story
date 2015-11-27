@@ -16,7 +16,7 @@ window.onload = function() {
         big.current = n;
         var e = s[n], t = parseInt(e.getAttribute('data-timeToNext') || 0, 10),
             notes = e.getElementsByTagName('notes');
-        document.body.className = e.getAttribute('data-bodyclass') || '';
+        document.body.className = e.getAttribute('data-bodyclass') || (n % 2 ? 'even' : 'odd');
         for (i = 0; i < s.length; i++) s[i].style.display = 'none';
         e.style.display = 'inline';
         e.focus();

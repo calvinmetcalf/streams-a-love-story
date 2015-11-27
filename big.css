@@ -1,12 +1,11 @@
 body {
-  font-family:'Helvetica';
+  font-family:'Futura', 'Helvetica';
   letter-spacing:-5px;
   background:#000;
   background-size:100%;
   color:#fff;
   margin:0;
   padding:0;
-  font-weight:bold;
 }
 
 h1, h2, h3, p {
@@ -53,4 +52,27 @@ notes {
 :focus {
     outline: 0;
 }
-
+.even {
+  background-color:#fff;
+  color:#000;
+}
+.odd {
+  background-color:#000;
+  color:#fff;
+}
+.odd a {
+  background-color:#8dbd0c;
+  color:#000;
+  text-decoration:none;
+}
+.even a {
+  background-color:#8dbd0c;
+  color:#fff;
+  text-decoration:none;
+}
+.even em {
+  color: #68228B;
+}
+.odd em {
+  color: #418AD0;
+}

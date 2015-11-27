@@ -1,185 +1,273 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Big: Presentations for Busy Messy Hackers</title>
-    <meta charset='utf-8'>
-    <meta property="og:title" content="Big"/>
-    <meta property="og:description" content="Presentations for Busy Messy Hackers"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
-    <style>
-body {
-    color:#222;
-    max-width:640px;
-    margin:20px auto 50px auto;
-    font:normal 14px/25px 'Helvetica Neue', sans-serif;
+  <title>Big</title>
+  <meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' />
+<link href='big.css' rel='stylesheet' type='text/css' />
+
+<script src='big.js'></script></head><body>
+
+<div>
+  <em>Streams</em> and <em>You</em>:<br/> A <em>Love</em> Story<br/>
+  <em>Calvin</em> W. <em>Metcalf</em><br/>
+  Applied Geographics
+</div>
+<div>Who Am I?
+<notes>Member of stream WG</notes>
+<notes>Use streams all the time</notes>
+<notes>Make a lot of maps</notes>
+</div>
+<div><img src="img/flatearth.jpg" />Less This<notes>source: https://commons.wikimedia.org/wiki/File:Orlando-Ferguson-flat-earth-map_edit.jpg</notes>
+</div>
+<div><img src="img/drivetexas.png" />More This <notes>https://drivetexas.org, I wrote the backend...using streams</notes></div>
+<div>
+What is a <em>stream</em>?
+</div>
+<div>
+
+a <em>collection</em> of data
+<notes>Kinda like an array</notes>
+</div>
+<div>
+that may <em>not</em> be available all at <em>once</em>
+<notes>it is not a callback or a promise</notes>
+</div>
+
+
+<div>
+That can be pipelined
+<notes>supports back pressure, and makes it different from a generator</notes>
+</div>
+
+<div>
+that may not fit in memory
+<notes>this is in many ways a killer feature</notes>
+</div>
+<div>Two types of streams</div>
+<div>Binary Streams<notes>Buffer, but not all at once</notes>
+
+</div>
+<div>Examples
+  <ul>
+  <li>large file read from disk</li>
+  <li>download a file</li>
+  <li>web requests in general</li>
+</ul>
+</div>
+<div>
+Object Streams<notes>Arrays, but not all at once</notes>
+</div>
+<div>
+how to specify an object mode stream
+<pre>
+var stream = new YourStream({
+  <em>objectMode: true</em>
+});
+</pre>
+</div>
+<div>
+streams have gone through a couple (backwards compatable) versions <notes>streams 1, 2, and 3</notes>
+</div>
+<div>
+you can get node streams with
+<pre>var stream = require(<em>'stream'</em>);</pre>
+<notes>version you get will depend on which version of node/browserify</notes>
+</div>
+<div>
+or there is an npm package you can use
+<pre>var stream = require(<em>'readable-stream'</em>);</pre>
+<notes>version will always be the same, good for use with libraries</notes>
+</div>
+<div>
+Stream basics:
+</div>
+<div>streams my produce data</div>
+<div>streams my consume data</div>
+<div>or both</div>
+<div>
+A <em>Readable</em> stream does what you'd expect
+<pre>var <em>Readable</em> = stream.Readable;</pre></div>
+<div>
+likewise <em>Writable</em> stream
+<pre>var <em>Writable</em> = stream.Writable;</pre></div>
+<div>
+A <em>Duplex</em> stream is both readable and writable
+<pre>var <em>Duplex</em> = stream.Duplex</pre>
+<notes>there are 2 special types of duplex streams included</notes>
+</div>
+<div>
+A <em>PassThrough</em> stream is a simple stream that output whatever data put into it
+<pre>var <em>PassThrough</em> = stream.PassThrough</pre>
+<notes>This is suprisingly useful</notes>
+</div>
+<div>
+A <em>Transform</em> stream is a stream which produces data based on what is put into it
+<pre>var <em>Transform</em> = stream.Transform</pre>
+<notes>This is your bread and butter of streams</notes>
+</div>
+<div>
+Using <em>streams</em>:
+</div>
+<div>
+All streams are event emitters
+</div>
+<div>
+<em>Readable</em>, <em>Duplex</em>, and <em>Transform</em> streams may be read from.
+</div>
+<div>
+calling <em>.read()</em> on a stream returns data if it's available, null otherwise
+<notes>calling it this way will cause the stream to only get enough data to fill up an internal buffer</notes>
+</div>
+<div>
+<em>'readable'</em> event is emitted when there is data available to be read
+</div>
+<div>
+<em>'end'</em> event is emitted when there is no data left
+</div>
+<div>
+<em>'data'</em> event is special as it causes the stream to enter <em>'flowing'</em> mode and emit data as soon as it's available.
+</div>
+<div>
+<em>.pipe(dest)</em> method is uses to pass the contents of the stream to a writable stream as quickly as the writable stream will accept it.
+</div>
+<div>
+<em>Writable</em>, <em>Duplex</em>, and <em>Transform</em> streams may be written to
+</div>
+<div>
+calling <em>.write(data)</em> or <em>.write(data, callback)</em> writes a value to the stream.
+</div>
+<div>
+calling <em>.end(callback)</em> or <em>.end(data)</em> or <em>.end(data, callback)</em> closes the write stream (and optionally writes a last value).
+</div>
+<div>
+<em>'finish'</em> event is emitted when the stream is no longer writable.
+<notes>Yes this is super confusing</notes>
+</div>
+<div>
+Intermezzo: <em>Pipeing</em> and <em>Back pressure</em>
+<notes>no you haven't stumbled into a python talk</notes>
+</div>
+<div>
+pipeing returns the destination stream
+<pre>src.pipe(<em>dest</em>) === <em>dest</em></pre>
+</div>
+<div>
+this allows for chaining
+<pre><em>readable</em>.pipe(<em>transform</em>).pipe(<em>writable</em>)</pre>
+</div>
+<div>
+<em>back pressure</em> is what happends when a readable stream produces data faster then a writable stream can consume it.
+<notes>Usually when the writable stream is doing something async</notes>
+</div>
+<div>
+<em>OK</em> not going to be a problem
+<pre>stream.on('data', data => {
+  var result = <pre>doSomethingSync</pre>(data);
+  <pre>doSomethingElse</pre>(result);
+});</pre>
+</div>
+<div>
+<em>BAD!</em> Will cause an error with enough data
+<pre>stream.on('data', data =>
+  <pre>doSomethingAsync</pre>(data, (err, result) => {
+    if (err) {
+      throw err;
+    }
+    <pre>doSomethingElseSync</pre>(result);
+  })
+);</pre>
+</div>
+<div>
+<em>Best</em> the prefered way
+<pre>stream.pipe(<em>doSomethingAsyncStream</em>).pipe(<em>doSomethingElseStream</em>);</pre>
+</div>
+<div>
+To create a stream you just suply needed functions
+</div>
+<div>
+<em>read</em> for a <em>Readable</em> stream
+</div>
+<div>
+<em>write</em> (and optionally <em>writev</em>) for a <em>Writable</em> stream
+</div>
+<div>
+<em>transform</em> (and optionally <em>flush</em>) for a <em>Transform</em> stream
+</div>
+<div>
+You can either subclass the stream and supply this missing function as a method with an underscore in front of it
+</div>
+<div>
+ES5 way
+<pre>
+utils.inherits(<em>FromArray</em>, <em>Transform</em>);
+function <em>FromArray</em>() {
+  <em>Transform</em>.call(this, {<em>objectMode</em>: true});
 }
-h1 { font-size:140px; line-height:40px;margin-top:140px; }
-h1, h2 {
-    text-align:center;
-}
-.head {
-    color:#fff;
-    background:#000;
-    padding:10px;
-    text-align:right;
-    border:1px solid #000;
-}
-.content {
-    margin:40px 50px 0 50px;
-}
-.buttons {
-    text-align:center;
-    padding:20px 0 20px 0;
-}
-.button {
-    color:#fff;
-    background:#56a;
-    padding:10px 20px;
-    font-size:18px;
-    border-radius:3px;
-    text-decoration:none;
-    margin:0 10px;
-    border-bottom:1px solid #AEB7DD;
-    border-right:1px solid #AEB7DD;
-}
-.button:first-child {
-    background:#586;
-    border-bottom:1px solid #A8D8B3;
-    border-right:1px solid #A8D8B3;
-}
-a {
-    color:blue;
-    text-decoration:none;
-}
-a:hover { text-decoration:underline; }
-ul { list-style-type:none; margin:0; padding:0;}
-li { width:50%;float:left;box-sizing:border-box;border:5px solid #fff; }
-li a {
-    color: #000;
-    display:block;
-    text-decoration:none;
-    padding:15px;
-    background:#fff;
-    transition:background 100ms linear;
-    text-align:center;
-    border-radius:2px;
-    background:#efefef;
-}
-li a:hover { background:#558866; color:#fff; text-decoration:none; }
-.clearfix:after {
-  content:'.';
-  display:block;
-  height:0;
-  clear:both;
-  visibility:hidden;
+<em>FromArray</em>.prototype._transform = function (chunk, encoding, <em>next</em>) {
+  if (!Array.isArray(chunk)) {
+    return <em>next</em>(new TypeError('must be an array'));
   }
-
-.clearfix { display:inline-block; }
-
-pre {
-    padding:10px;
-    background:#e0efe0;
+  if (chunk.length === 1) {
+    return <em>next</em>(null, chunk[0]);
+  }
+  for (let item of chunk) {
+    this.push(item);
+  }
+  <em>next</em>();
 }
-.gh {
-    display:block;
-    text-align:right;
+</pre>
+<notes>Note how we don't care about encoding?</notes>
+</div>
+<div>
+ES2015 way
+<pre>
+class <em>FromArray</em> extends <em>Transform</em> {
+  constructor() {
+    <em>super</em>({
+      <em>objectMode</em>: true
+    });
+  }
+  _transform(chunk, encoding, <em>next</em>) {
+    if (!Array.isArray(chunk)) {
+      return <em>next</em>(new TypeError('must be an array'));
+    }
+    if (chunk.length === 1) {
+      return <em>next</em>(null, chunk[0]);
+    }
+    for (let item of chunk) {
+      this.push(item);
+    }
+    <em>next</em>();
+  }
 }
-    </style>
-</head>
-<body>
-<a class='gh' href='https://github.com/tmcw/big'>(fork || star) on github</a>
-<div class='head'>
-    <iframe class="github-btn" src="http://ghbtns.com/github-btn.html?user=tmcw&repo=big&type=watch&count=true" allowtransparency="true" frameborder="0" scrolling="0" width="100px" height="20px"></iframe>
-    <h1>Big</h1>
-    <div class='buttons'>
-        <a class='button' href='https://github.com/tmcw/big/archive/gh-pages.zip'>Download</a>
-        <a class='button' href='./demo.html'>Demo</a>
-    </div>
-    <h2>Presentations for Busy Messy Hackers</h2>
+</pre>
 </div>
-
-<div class='content'>
-    <p>
-    Big is a minimal presentation system with a simple rule: the text on every
-    slide is embiggened until it fills your screen.
-    It works pretty okay with focused presentations and plenty of narration,
-    and it will make long bullet-lists look terrible.
-    </p>
-    <p>
-    You create presentations with big by downloading it and editing simple
-    HTML: <code>div</code> elements become slides. You style your presentations
-    with CSS, just like web pages.
-    </p>
-    <p>Then you can either post your slides
-    to GitHub to share with the world, or boot up a local development
-    server to conference-wifi-proof them.
-    </p>
+<div>
+or you can just pass it to the constructor
+<pre>
+var <em>fromArray</em> = new <em>Transform</em>({
+  <em>objectMode</em>: true,
+  transform: function(chunk, encoding, <em>next</em>) {
+    if (!Array.isArray(chunk)) {
+      return <em>next</em>(new TypeError('must be an array'));
+    }
+    if (chunk.length === 1) {
+      return <em>next</em>(null, chunk[0]);
+    }
+    for (let item of chunk) {
+      this.push(item);
+    }
+    <em>next</em>();
+  }
+});
+</pre>
 </div>
+</body>
+</html>
+<!--
 
-<div class='content'>
-    <h2>Quick Start</h2>
-    <pre>curl -L http://bit.ly/big-quick &gt; index.html
-python -m SimpleHTTPServer</pre>
-    <p>(then open <a href='http://localhost:8000/'>localhost:8000</a>)</p>
+<div>
+
+<notes></notes>
 </div>
-
-<div class='content'>
-    <h2>Examples</h2>
-    <ul class='clearfix'>
-        <li><a href="http://exposedata.com/talk/d3-geo/#0">d3-geo</a>
-        <li><a href="http://bdon.org/talk-2013-1-29.html#0">THREE.js + geo</a>
-        <li><a href="http://macwright.org/presentations/beyond/">FOSS4G: Beyond</a></li>
-        <li><a href="http://macwright.org/presentations/projections/#0">Project It Yourself</a></li>
-        <li><a href="http://macwright.org/presentations/carto/">Carto</a></li>
-        <li><a href="http://maxogden.github.com/slides/empirejs/index.html#0">javascript for cats</a>
-        <li><a href="http://macwright.org/presentations/wherecampboston/">WhereCamp Boston</a>
-        <li><a href="http://macwright.org/presentations/foss4g/1.html">foss4g</a></li>
-        <li><a href="http://isaacjg.github.io/intro_to_python/python_presentation/python_presentation.html#0">python</a></li>
-    </ul>
-</div>
-
-<div class='content'>
-    <h2>Plugins and Riffs</h2>
-    <p>
-    Don't like typing HTML? You can use <a href='http://macwright.org/biggie'>biggie</a>
-    if you want and type Markdown instead. <a href='https://github.com/harperreed/bigpy'>bigpy</a> does
-    it in Python.
-    </p>
-    <p>
-    Don't want to spend time designing stuff? <a href='https://github.com/tmcw/big-themes'>big-themes</a>
-    has some precooked styles.
-    </p>
-    <p>
-    Want something else? Check out <a href='https://github.com/jed/weenote'>Weenote</a>,
-    <a href='http://github.com/mbostock/stack'>stack</a>, and <a href='https://github.com/schacon/showoff'>showoff</a>.
-    There sure are options nowadays.
-    </p>
-</div>
-
-<div class='content'>
-    <h2>Nerd Stuff</h2>
-    <p>
-    Big is 1.1KB and 46 lines long at last count. It's written in vanilla JavaScript
-    with no frameworks and no hijinks. It supports touch and permalinks
-    to individual slide pages. It's licensed PD and is ready for you to hack
-    it into something beautiful or monstrous.
-    </p>
-    <p>
-        Big is awesome because awesome folks have helped out, and you can too:
-        <a href='https://github.com/tmcw/big'>fork big on GitHub!</a>
-    </p>
-</div>
-
-<script type="text/javascript">
-  var _gauges = _gauges || [];
-  (function() {
-    var t   = document.createElement('script');
-    t.type  = 'text/javascript';
-    t.async = true;
-    t.id    = 'gauges-tracker';
-    t.setAttribute('data-site-id', '4e36eb1ef5a1f53d6f000001');
-    t.src = '//secure.gaug.es/track.js';
-    var s = document.getElementsByTagName('script')[0];
-    s.parentNode.insertBefore(t, s);
-  })();
-</script>
+-->
