@@ -44,15 +44,15 @@ that may not fit in memory
 <notes>this is in many ways a killer feature</notes>
 </div>
 <div>
-Using streams
+Using <em>streams</em>
 </div>
 <div>
-Writable streams
+<em>Writable</em> streams
 <notes>streams that take data</notes>
 </div>
 <div>
 <pre>
-var writableFileStream = fs.createWriteStream(<em>'./path'</em>);>
+var writableFileStream = fs.createWriteStream(<em>'./path'</em>);
 var writableHttpStream = https.request({
   method: <em>'POST'</em>
 });</pre>
@@ -66,20 +66,19 @@ var writableHttpStream = https.request({
 <em>.end</em> method when you are done
 <notes>can also take some data</notes>
 </div>
-<div>Can give it a buffer, or a string</div>
-<div>if you give it a string you can specify encoding
+<div>Can give it a <em>buffer</em>, or a <em>string</em></div>
+<div>if you give it a <em>string</em> you can specify <em>encoding</em>
 <notes>defaults to 'utf8', same encodings as buffers</notes>
 </div>
 <div>
-you can also pass a callback
+you can also pass a <em>callback</em>
 </div>
 <div>
-  <em>'finish'</em> event is emitted when it's done writing everything
-  <notes>this will come up later</notes>
-
+<em>'finish'</em> event is emitted when it's done writing everything
+<notes>this will come up later</notes>
 </div>
 <div>
-Readable streams
+<em>Readable</em> streams
 <notes>streams that provide data</notes>
 </div>
 <div>
@@ -98,7 +97,7 @@ var <em>writableHttpStream</em> = https.request({
 <em>'end'</em> event when there is no more
 </div>
 <div>
-  grab all data into a buffer and call a callback
+  grab all data into a <em>buffer</em> and call a <em>callback</em>
 <pre>
 var outData = [];
 readableHttpStream
@@ -107,14 +106,14 @@ readableHttpStream
 .end(<em>'end'</em>, () => callback(null, Buffer.concat(outData)));
 </pre>
 </div>
-<div>back pressure
+<div><em>back pressure</em>
   <notes>when you (async) consume data slower then it is produced</notes>
 </div>
 <div>
 don't do anything async inside a <em>data</em> event listener
 </div>
 <div>
-pipeing allows you do do async stuff as it handles back pressure
+<em>pipeing</em> allows you do do <em>async</em> stuff as it handles <em>back pressure</em>
 </div>
 <div>
 pipe to to a simple write stream
@@ -127,26 +126,26 @@ readableFileStream.pipe(new stream.Writable({
 </pre>
 </div>
 <div>
-transform streams allow you to do it in steps
+<em>transform</em> streams allow you to do it in steps
 </div>
 <div>
 <pre>
 var transform = new stream.Transform({
   transform(<em>chunk</em>, encoding, <em>next</em>) {
-    doElseSomethingAsync(chunk, (err, resp) => {
-      if (err) {
-        return next(err);
+    doElseSomethingAsync(<em>chunk</em>, (<em>err</em>, <em>resp</em>) => {
+      if (<em>err</em>) {
+        return <em>next</em>(<em>err</em>);
       }
-      if (!resp) {
-        return next();
+      if (!<em>resp</em>) {
+        return <em>next</em>();
       }
-      if (!Array.isArray(resp)) {
-        return next(null, resp);
+      if (!Array.isArray(<em>resp</em>)) {
+        return <em>next</em>(null, <em>resp</em>);
       }
-      for (let item of resp) {
-        this.push(item);
+      for (let <em>item</em> of <em>resp</em>) {
+        this.push(<em>item</em>);
       }
-      next();
+      <em>next</em>();
     });
   }
 });
@@ -155,19 +154,19 @@ var transform = new stream.Transform({
 <div>
   details
 <pre>
-  if (err) {
-    return next(err);
-  }
-  if (!resp) {
-    return next();
-  }
-  if (!Array.isArray(resp)) {
-    return next(null, resp);
-  }
-  for (let item of resp) {
-    this.push(item);
-  }
-  next();
+if (<em>err</em>) {
+  return <em>next</em>(<em>err</em>);
+}
+if (!<em>resp</em>) {
+  return <em>next</em>();
+}
+if (!Array.isArray(<em>resp</em>)) {
+  return <em>next</em>(null, <em>resp</em>);
+}
+for (let <em>item</em> of <em>resp</em>) {
+  this.push(<em>item</em>);
+}
+<em>next</em>();
 </pre>
 <notes>
 next is a callback so can take an error
@@ -181,7 +180,7 @@ readableFileStream
 .pipe(transform)
 .pipe(new stream.Writable({
   write(<em>chunk</em>, encoding, <em>next</em>) {
-    doSomethingAsync(chunk, next);
+    doSomethingAsync(<em>chunk</em>, <em>next</em>);
   }
 }));
 </pre></div>
@@ -191,22 +190,22 @@ real life example: json stream of some sort
   <div>
     <pre>
 function makeJsonStream() {
-  var first = true;
+  var first = <em>true</em>;
   return new stream.Transform({
-    objectMode: true,
+    objectMode: <em>true</em>,
     transform(<em>chunk</em>, encoding, <em>next</em>) {
-      if (first) {
-        this.push('[');
-        first = false;
+      if (<em>first</em>) {
+        this.push(<em>'['</em>);
+        first = <em>false</em>;
       } else {
-        this.push(',');
+        this.push(<em>','</em>);
       }
-      this.push(JSON.stringify(chunk));
-      next();
-    },
-    flush(done) {
-      this.push(']');
-      done();
+      this.push(JSON.stringify(<em>chunk</em>));
+      <em>next</em>();
+    }
+    flush(<em>done</em>) {
+      this.push(<em>']'</em>);
+      <em>done</em>();
     }
   })
 }
@@ -250,27 +249,6 @@ wrap up:
 </pre>
 </div>
 <div>
-real life pipeline examples:
-</div>
-<div>
-<ol>
-<li>read filenames from google cloud storage</li>
-<li>download files</li>
-<li>pull 6 different stats out of each file</li>
-<li>write it to a csv</li>
-<li>upload to cloud</li>
-</ol>
-</div>
-<div>
-<ol>
-  <li>download geodata from ESRI server</li>
-  <li>convert to sane format</li>
-  <li>add some extra info like the date</li>
-  <li>if it's a line make a second feature that is a point</li>
-  <li>upload it to a server</li>
-</ol>
-</div>
-<div>
 request bodies are also writable Streams<pre>
 app.get(<em>'/path.json'</em>, (req, res) => {
   res.type(<em>'json'</em>);
@@ -279,14 +257,25 @@ app.get(<em>'/path.json'</em>, (req, res) => {
   .pipe(res);
 })
 </pre>
-<notes>it's that easy</notes>
 </div>
+<div>
+real life <em>pipeline</em> examples:
+</div>
+<div>1. <em>read</em> filenames from google cloud storage</div>
+<div>2. <em>download</em> files</div>
+<div>3. <em>pull</em> 6 different stats out of each file</div>
+<div>4. <em>write</em> it to a csv</div>
+<div>5. <em>upload</em> to cloud</div>
+<div>1. <em>download</em> geodata from ESRI server</div>
+<div>2. <em>convert</em> to sane format</div>
+<div>3. <em>add</em> some extra info like the date</div>
+<div>4. if it's a line <em>make</em> and emit second feature that is a point</div>
 <div>
 great places to use streams
 </div>
 <div>ETL tasks<notes>where the data could be massive</notes></div>
 <div>user uploads<notes>where data could be massive</notes></div>
-<div>any task where you only need a litle bit at a time</div>
+<div>any task where you only need <em>a litle bit</em> at a time</div>
 <div>
 <ul>
 <li><a href="https://twitter.com/cwmma">@cwmma</a></li>
