@@ -43,235 +43,259 @@ That can be pipelined
 that may not fit in memory
 <notes>this is in many ways a killer feature</notes>
 </div>
-<div>Two types of streams</div>
-<div>Binary Streams<notes>Buffer, but not all at once</notes>
+<div>
+Using streams
+</div>
+<div>
+Writable streams
+<notes>streams that take data</notes>
+</div>
+<div>
+<pre>
+var writableFileStream = fs.createWriteStream(<em>'./path'</em>);>
+var writableHttpStream = https.request({
+  method: <em>'POST'</em>
+});</pre>
+<notes>node streams are all binary streams</notes>
+<notes>ones from npm can take objects</notes>
+</div>
+<div>
+<em>.write</em> method to add data
+</div>
+<div>
+<em>.end</em> method when you are done
+<notes>can also take some data</notes>
+</div>
+<div>Can give it a buffer, or a string</div>
+<div>if you give it a string you can specify encoding
+<notes>defaults to 'utf8', same encodings as buffers</notes>
+</div>
+<div>
+you can also pass a callback
+</div>
+<div>
+  <em>'finish'</em> event is emitted when it's done writing everything
+  <notes>this will come up later</notes>
 
 </div>
-<div>Examples
-  <ul>
-  <li>large file read from disk</li>
-  <li>download a file</li>
-  <li>web requests in general</li>
-</ul>
+<div>
+Readable streams
+<notes>streams that provide data</notes>
 </div>
 <div>
-Object Streams<notes>Arrays, but not all at once</notes>
-</div>
-<div>
-how to specify an object mode stream
-<pre>
-var stream = new YourStream({
-  <em>objectMode: true</em>
-});
-</pre>
-</div>
-<div>
-streams have gone through a couple (backwards compatable) versions <notes>streams 1, 2, and 3</notes>
-</div>
-<div>
-you can get node streams with
-<pre>var stream = require(<em>'stream'</em>);</pre>
-<notes>version you get will depend on which version of node/browserify</notes>
-</div>
-<div>
-or there is an npm package you can use
-<pre>var stream = require(<em>'readable-stream'</em>);</pre>
-<notes>version will always be the same, good for use with libraries</notes>
-</div>
-<div>
-Stream basics:
-</div>
-<div>streams my produce data</div>
-<div>streams my consume data</div>
-<div>or both</div>
-<div>
-A <em>Readable</em> stream does what you'd expect
-<pre>var <em>Readable</em> = stream.Readable;</pre></div>
-<div>
-likewise <em>Writable</em> stream
-<pre>var <em>Writable</em> = stream.Writable;</pre></div>
-<div>
-A <em>Duplex</em> stream is both readable and writable
-<pre>var <em>Duplex</em> = stream.Duplex</pre>
-<notes>there are 2 special types of duplex streams included</notes>
-</div>
-<div>
-A <em>PassThrough</em> stream is a simple stream that output whatever data put into it
-<pre>var <em>PassThrough</em> = stream.PassThrough</pre>
-<notes>This is suprisingly useful</notes>
-</div>
-<div>
-A <em>Transform</em> stream is a stream which produces data based on what is put into it
-<pre>var <em>Transform</em> = stream.Transform</pre>
-<notes>This is your bread and butter of streams</notes>
-</div>
-<div>
-Using <em>streams</em>:
-</div>
-<div>
-All streams are event emitters
-</div>
-<div>
-<em>Readable</em>, <em>Duplex</em>, and <em>Transform</em> streams may be read from.
-</div>
-<div>
-calling <em>.read()</em> on a stream returns data if it's available, null otherwise
-<notes>calling it this way will cause the stream to only get enough data to fill up an internal buffer</notes>
-</div>
-<div>
-<em>'readable'</em> event is emitted when there is data available to be read
-</div>
-<div>
-<em>'end'</em> event is emitted when there is no data left
-</div>
-<div>
-<em>'data'</em> event is special as it causes the stream to enter <em>'flowing'</em> mode and emit data as soon as it's available.
-</div>
-<div>
-<em>.pipe(dest)</em> method is uses to pass the contents of the stream to a writable stream as quickly as the writable stream will accept it.
-</div>
-<div>
-<em>Writable</em>, <em>Duplex</em>, and <em>Transform</em> streams may be written to
-</div>
-<div>
-calling <em>.write(data)</em> or <em>.write(data, callback)</em> writes a value to the stream.
-</div>
-<div>
-calling <em>.end(callback)</em> or <em>.end(data)</em> or <em>.end(data, callback)</em> closes the write stream (and optionally writes a last value).
-</div>
-<div>
-<em>'finish'</em> event is emitted when the stream is no longer writable.
-<notes>Yes this is super confusing</notes>
-</div>
-<div>
-Intermezzo: <em>Pipeing</em> and <em>Back pressure</em>
-<notes>no you haven't stumbled into a python talk</notes>
-</div>
-<div>
-pipeing returns the destination stream
-<pre>src.pipe(<em>dest</em>) === <em>dest</em></pre>
-</div>
-<div>
-this allows for chaining
-<pre><em>readable</em>.pipe(<em>transform</em>).pipe(<em>writable</em>)</pre>
-</div>
-<div>
-<em>back pressure</em> is what happends when a readable stream produces data faster then a writable stream can consume it.
-<notes>Usually when the writable stream is doing something async</notes>
-</div>
-<div>
-<em>OK</em> not going to be a problem
-<pre>stream.on('data', data => {
-  var result = <em>doSomethingSync</em>(data);
-  <em>doSomethingElse</em>(result);
+<pre>var <em>readableFileStream</em> = fs.createReadStream(<em>'./path'</em>);
+var <em>writableHttpStream</em> = https.request({
+  method: <em>'POST'</em>
+}, function(<em>readableHttpStream</em>) {
+  // do stuff
 });</pre>
 </div>
 <div>
-<em>BAD!</em> Will cause an error with enough data
-<pre>stream.on('data', data =>
-  <em>doSomethingAsync</em>(data, (err, result) => {
-    if (err) {
-      throw err;
-    }
-    <em>doSomethingElseSync</em>(result);
-  })
-);</pre>
+<em>'data'</em> event is is emitted when a stream had data.
+<notes>this causes the stream to get you data to emit as fast as possible</notes>
 </div>
 <div>
-<em>Best</em> the prefered way
-<pre>stream
-  .pipe(<em>doSomethingAsyncStream</em>)
-  .pipe(<em>doSomethingElseStream</em>);</pre>
+<em>'end'</em> event when there is no more
 </div>
 <div>
-To create a stream you just suply needed functions
-</div>
-<div>
-<em>read</em> for a <em>Readable</em> stream
-</div>
-<div>
-<em>write</em> (and optionally <em>writev</em>) for a <em>Writable</em> stream
-</div>
-<div>
-<em>transform</em> (and optionally <em>flush</em>) for a <em>Transform</em> stream
-</div>
-<div>
-You can either subclass the stream and supply this missing function as a method with an underscore in front of it
-</div>
-<div>
-ES5 way
+  grab all data into a buffer and call a callback
 <pre>
-utils.inherits(<em>FromArray</em>, <em>Transform</em>);
-function <em>FromArray</em>() {
-  <em>Transform</em>.call(<em>this</em>, {
-    <em>objectMode</em>: true
-  });
-}
-<em>FromArray</em>.prototype._transform = function (<em>chunk</em>, encoding, <em>next</em>) {
-  for (let <em>item</em> of <em>chunk</em>) {
-    <em>this</em>.push(<em>item</em>);
-  }
-  <em>next</em>();
-}
+var outData = [];
+readableHttpStream
+.on(<em>'data'</em>, data => outData.push(data))
+.on(<em>'error'</em>, callback)
+.end(<em>'end'</em>, () => callback(null, Buffer.concat(outData)));
 </pre>
-<notes>Note how we don't care about encoding?</notes>
+</div>
+<div>back pressure
+  <notes>when you (async) consume data slower then it is produced</notes>
 </div>
 <div>
-ES2015 way
+don't do anything async inside a <em>data</em> event listener
+</div>
+<div>
+pipeing allows you do do async stuff as it handles back pressure
+</div>
+<div>
+pipe to to a simple write stream
 <pre>
-class <em>FromArray</em> extends <em>Transform</em> {
-  constructor() {
-    <em>super</em>({
-      <em>objectMode</em>: true
-    });
+readableFileStream.pipe(new stream.Writable({
+  write(<em>chunk</em>, encoding, <em>next</em>) {
+    doSomethingAsync(chunk, next);
   }
-  _transform(<em>chunk</em>, encoding, <em>next</em>) {
-    for (let <em>item</em> of <em>chunk</em>) {
-      <em>this</em>.push(<em>item</em>);
-    }
-    <em>next</em>();
-  }
-}
+}));
 </pre>
 </div>
 <div>
-or you can just pass it to the constructor
+transform streams allow you to do it in steps
+</div>
+<div>
 <pre>
-var <em>fromArray</em> = new <em>Transform</em>({
-  <em>objectMode</em>: true,
+var transform = new stream.Transform({
   transform(<em>chunk</em>, encoding, <em>next</em>) {
-    for (let <em>item</em> of <em>chunk</em>) {
-      <em>this</em>.push(<em>item</em>);
-    }
-    <em>next</em>();
+    doElseSomethingAsync(chunk, (err, resp) => {
+      if (err) {
+        return next(err);
+      }
+      if (!resp) {
+        return next();
+      }
+      if (!Array.isArray(resp)) {
+        return next(null, resp);
+      }
+      for (let item of resp) {
+        this.push(item);
+      }
+      next();
+    });
   }
 });
 </pre>
 </div>
 <div>
-more complete transform function
-<pre>function(<em>chunk</em>, encoding, <em>next</em>) {
-    if (!Array.isArray(<em>chunk</em>)) {
-      return <em>next</em>(new TypeError('must be an array'));
-    }
-    if (<em>chunk</em>.length === 1) {
-      return <em>next</em>(null, <em>chunk</em>[0]);
-    }
-    for (let <em>item</em> of <em>chunk</em>) {
-      <em>this</em>.push(<em>item</em>);
-    }
-    <em>next</em>();
-  }<pre>
-<notes>See how next is regular callback that can be used when we emit a single thing</notes>
-<notes>if you forget to call next things will catch fire</notes>
-
+  details
+<pre>
+  if (err) {
+    return next(err);
+  }
+  if (!resp) {
+    return next();
+  }
+  if (!Array.isArray(resp)) {
+    return next(null, resp);
+  }
+  for (let item of resp) {
+    this.push(item);
+  }
+  next();
+</pre>
+<notes>
+next is a callback so can take an error
+</notes>
+<notes>if only emitting one thing, next can take a value</notes>
+<notes>zero to Infinity things may be emitted</notes>
 </div>
+<div>
+  <pre>
+readableFileStream
+.pipe(transform)
+.pipe(new stream.Writable({
+  write(<em>chunk</em>, encoding, <em>next</em>) {
+    doSomethingAsync(chunk, next);
+  }
+}));
+</pre></div>
+  <div>
+real life example: json stream of some sort
+  </div>
+  <div>
+    <pre>
+function makeJsonStream() {
+  var first = true;
+  return new stream.Transform({
+    objectMode: true,
+    transform(<em>chunk</em>, encoding, <em>next</em>) {
+      if (first) {
+        this.push('[');
+        first = false;
+      } else {
+        this.push(',');
+      }
+      this.push(JSON.stringify(chunk));
+      next();
+    },
+    flush(done) {
+      this.push(']');
+      done();
+    }
+  })
+}
+  </pre>
+  <notes>lets break this down</notes>
+  </div>
+<div>
+setup:
+<pre>
+function makeJsonStream() {
+  var first = <em>true</em>;
+  return new stream.Transform({
+    objectMode: <em>true</em>,
+</pre>
+<notes>note the object mode</notes>
+</div>
+<div>
+the transform:
+<pre>
+transform(<em>chunk</em>, encoding, <em>next</em>) {
+  if (<em>first</em>) {
+    this.push(<em>'['</em>);
+    first = <em>false</em>;
+  } else {
+    this.push(<em>','</em>);
+  }
+  this.push(JSON.stringify(<em>chunk</em>));
+  <em>next</em>();
+}
+</pre>
+</div>
+<div>
+wrap up:
+<pre>
+    flush(<em>done</em>) {
+      this.push(<em>']'</em>);
+      <em>done</em>();
+    }
+  })
+}
+</pre>
+</div>
+<div>
+real life pipeline examples:
+</div>
+<div>
+<ol>
+<li>read filenames from google cloud storage</li>
+<li>download files</li>
+<li>pull 6 different stats out of each file</li>
+<li>write it to a csv</li>
+<li>upload to cloud</li>
+</ol>
+</div>
+<div>
+<ol>
+  <li>download geodata from ESRI server</li>
+  <li>convert to sane format</li>
+  <li>add some extra info like the date</li>
+  <li>if it's a line make a second feature that is a point</li>
+  <li>upload it to a server</li>
+</ol>
+</div>
+<div>
+request bodies are also writable Streams<pre>
+app.get(<em>'/path.json'</em>, (req, res) => {
+  res.type(<em>'json'</em>);
+  getData()
+  .pipe(JSONStream.stringify())
+  .pipe(res);
+})
+</pre>
+<notes>it's that easy</notes>
+</div>
+<div>
+great places to use streams
+</div>
+<div>ETL tasks<notes>where the data could be massive</notes></div>
+<div>user uploads<notes>where data could be massive</notes></div>
+<div>any task where you only need a litle bit at a time</div>
+<div>
+<ul>
+<li><a href="https://twitter.com/cwmma">@cwmma</a></li>
+<li><a href="https://github.com/calvinmetcalf">github.com/calvinmetcalf</a></li>
+<li><a href="https://npmjs.org/~cwmma">npmjs.org/~cwmma</a></li>
+<li>this presentation: <a href="http://streams.how">streams.how</a></li>
+<li><a href="https://github.com/calvinmetcalf/streams-a-love-story">more resources</a></li>
+</ul>
+</div>
+
 </body>
 </html>
-<!--
-
-<div>
-
-<notes></notes>
-</div>
--->
