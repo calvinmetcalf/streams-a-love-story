@@ -6,7 +6,9 @@
 <link href='big.css' rel='stylesheet' type='text/css' />
 
 <script src='big.js'></script></head><body>
-
+<div>
+follow along at <em>http://streams.how</em>
+</div>
 <div>
   <em>Streams</em> and <em>You</em>:<br/> A <em>Love</em> Story<br/>
   <em>Calvin</em> W. <em>Metcalf</em><br/>
@@ -90,7 +92,7 @@ var <em>writableHttpStream</em> = https.request({
 });</pre>
 </div>
 <div>
-<em>'data'</em> event is is emitted when a stream had data.
+<em>'data'</em> event is is emitted when a stream has data.
 <notes>this causes the stream to get you data to emit as fast as possible</notes>
 </div>
 <div>
@@ -123,6 +125,7 @@ readableFileStream.pipe(new stream.Writable({
     doSomethingAsync(chunk, next);
   }
 }));
+<notes>listen for the finish event</notes>
 </pre>
 </div>
 <div>
@@ -270,9 +273,11 @@ real life <em>pipeline</em> examples:
 <div>2. <em>convert</em> to sane format</div>
 <div>3. <em>add</em> some extra info like the date</div>
 <div>4. if it's a line <em>make</em> and emit second feature that is a point</div>
+<div>5. <em>upload</em> to a cloud service</div>
 <div>
 great places to use streams
 </div>
+<div><img src="img/ghostbusting.jpg"/>busting ghosts</div>
 <div>ETL tasks<notes>where the data could be massive</notes></div>
 <div>user uploads<notes>where data could be massive</notes></div>
 <div>any task where you only need <em>a litle bit</em> at a time</div>

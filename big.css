@@ -18,9 +18,7 @@ em, a {
 }
 
 a {
-  background:#34d0e7;
-  color:#000;
-  text-decoration:none;
+  color:#8dbd0c;
 }
 
 img {
@@ -59,16 +57,6 @@ notes {
 .odd {
   background-color:#000;
   color:#fff;
-}
-.odd a {
-  background-color:#8dbd0c;
-  color:#000;
-  text-decoration:none;
-}
-.even a {
-  background-color:#8dbd0c;
-  color:#fff;
-  text-decoration:none;
 }
 .even em {
   color: #68228B;
