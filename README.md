@@ -101,3 +101,15 @@ function countingStream(max) {
 Now should you crete a class or directly create a stream?  The answer depends, but my rule of thumb us:
 
 If it is a one off stream used at a specific point in a program and nowhere else I create an instance directly.  If it's a stream that is being used multiple times, especially if it's in a library then I create a class.
+
+
+Piping
+===
+
+Piping has some sharp edges, notably errors are not forwarded and instead must be listened to on each stream in the pipe chain, also they can cause streams to be unpiped, checkout [pump](https://npmjs.org/pump) for a utility to make piping behave like you'd expect.
+
+Other useful tools
+===
+
+- [duplexify](https://www.npmjs.com/package/duplexify) for combining pipe chains and dealing with async stream creation
+- advice: through2 used to be an easy way to make transform streams, it's not necessary any more now that you can pass functions to the constructor.
