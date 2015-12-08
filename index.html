@@ -115,10 +115,10 @@ readableHttpStream
 don't do anything async inside a <em>data</em> event listener
 </div>
 <div>
-<em>pipeing</em> allows you do do <em>async</em> stuff as it handles <em>back pressure</em>
+<em>pipeing</em> allows you to do <em>async</em> stuff as it handles <em>back pressure</em>
 </div>
 <div>
-pipe to to a simple write stream
+pipe to a simple write stream
 <pre>
 readableFileStream.pipe(new stream.Writable({
   write(<em>chunk</em>, encoding, <em>next</em>) {
