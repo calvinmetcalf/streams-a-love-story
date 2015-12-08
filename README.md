@@ -106,10 +106,20 @@ If it is a one off stream used at a specific point in a program and nowhere else
 Piping
 ===
 
-Piping has some sharp edges, notably errors are not forwarded and instead must be listened to on each stream in the pipe chain, also they can cause streams to be unpiped, checkout [pump](https://npmjs.org/pump) for a utility to make piping behave like you'd expect.
+Piping has some sharp edges, notably errors are not forwarded and instead must be listened to on each stream in the pipe chain, if a destination stream errors out the streams further back in the chain aren't cleaned up, checkout [pump](https://npmjs.org/pump) for a utility to make piping behave like you'd expect and [pumpify](https://www.npmjs.com/package/pumpify) which is good for dealing with long piping chains where a pipes to b which pipes to etc.
 
-Other useful tools
+Reading Data
 ===
 
-- [duplexify](https://www.npmjs.com/package/duplexify) for combining pipe chains and dealing with async stream creation
-- advice: through2 used to be an easy way to make transform streams, it's not necessary any more now that you can pass functions to the constructor.
+You can listen for the `data` event of the stream, or you can listen for the `readable` event and then call `.read()` it returns `null` and then listen for the `readable` event again. In both cases you'd want to also listen for the `end` event to know there is nothing left to read.
+
+In the incredibly common scenario you just want all the data when it's done you can use [concat-stream](https://www.npmjs.com/package/concat-stream).
+
+Combining Streams
+===
+
+If you want to create a stream but you need to acquire part or all of it asynchronously then [duplexify](https://www.npmjs.com/package/duplexify) is super helpful.  It is also useful when you want to make your own duplex stream because you have a readable and a writable but want them to appear to be a single stream.
+
+through2
+===
+through2 used to be an easy way to make transform streams, it's not necessary any more now that you can pass functions to the constructor.
