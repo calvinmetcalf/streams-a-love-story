@@ -105,7 +105,7 @@ var outData = [];
 readableHttpStream
 .on(<em>'data'</em>, data => outData.push(data))
 .on(<em>'error'</em>, callback)
-.end(<em>'end'</em>, () => callback(null, Buffer.concat(outData)));
+.on(<em>'end'</em>, () => callback(null, Buffer.concat(outData)));
 </pre>
 </div>
 <div><em>back pressure</em>
