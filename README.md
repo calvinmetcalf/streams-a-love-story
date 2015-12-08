@@ -123,3 +123,28 @@ If you want to create a stream but you need to acquire part or all of it asynchr
 through2
 ===
 through2 used to be an easy way to make transform streams, it's not necessary any more now that you can pass functions to the constructor.
+
+with through2
+
+```js
+var myStream = through2({
+  objectMode: true
+}, function (chunk, enc, next) {}, function (done) {});
+```
+
+or
+
+
+```js
+var myStream = through2.obj( function (chunk, enc, next) {}, function (done) {});
+```
+
+With the new way of making streams in node
+
+```js
+var myStream = new stream.Transform({
+  objectMode: true,
+  transform (chunk, enc, next) {},
+  flush (done) {}
+});
+```
