@@ -98,7 +98,7 @@ function countingStream(max) {
 }
 ```
 
-Now should you crete a class or directly create a stream?  The answer depends, but my rule of thumb us:
+Now should you create a class or directly create a stream?  The answer depends, but my rule of thumb us:
 
 If it is a one off stream used at a specific point in a program and nowhere else I create an instance directly.  If it's a stream that is being used multiple times, especially if it's in a library then I create a class.
 
